@@ -76,10 +76,10 @@ export const AdminVouchers = () => {
                         <thead>
                             <tr className="border-b border-gray-100 text-sm text-gray-500">
                                 <th className="py-4 px-4 font-medium">Mã Voucher</th>
-                                <th className="py-4 px-4 font-medium">Giảm giá (%)</th>
+                                <th className="py-4 px-4 font-medium">Giảm giá</th>
                                 <th className="py-4 px-4 font-medium">Đơn tối thiểu</th>
-                                <th className="py-4 px-4 font-medium">Giảm tối đa</th>
-                                <th className="py-4 px-4 font-medium">Đã dùng / Giới hạn</th>
+                                <th className="py-4 px-4 font-medium">Đã dùng</th>
+                                <th className="py-4 px-4 font-medium">Giới hạn</th>
                                 <th className="py-4 px-4 font-medium">Trạng thái</th>
                                 <th className="py-4 px-4 font-medium text-right">Thao tác</th>
                             </tr>
@@ -97,11 +97,24 @@ export const AdminVouchers = () => {
                                 filteredVouchers.map((v) => (
                                     <tr key={v.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition">
                                         <td className="py-4 px-4 font-semibold text-gray-900">{v.code}</td>
-                                        <td className="py-4 px-4 text-red-600 font-bold">{v.discountPercentage}%</td>
-                                        <td className="py-4 px-4">{v.minOrderValue?.toLocaleString()}đ</td>
-                                        <td className="py-4 px-4">{v.maxDiscountAmount?.toLocaleString()}đ</td>
+                                        <td className="py-4 px-4 text-red-600 font-bold">
+                                            {v.discountPercentage > 0
+                                                ? <span>{v.discountPercentage}%</span>
+                                                : <span>{(v.fixedDiscountAmount ?? 0).toLocaleString()}đ giảm cứng</span>}
+                                        </td>
+                                        <td className="py-4 px-4">{(v.minOrderValue ?? 0).toLocaleString()}đ</td>
+                                        <td className="py-4 px-4 font-bold text-gray-700">
+                                            {v.usedCount ?? 0}
+                                        </td>
                                         <td className="py-4 px-4">
-                                            {v.usedCount} / {v.usageLimit > 0 ? v.usageLimit : '∞'}
+                                            {v.usageLimit > 0 ? (
+                                                <span className={`font-bold ${(v.usedCount ?? 0) >= v.usageLimit ? 'text-red-600' : 'text-gray-700'}`}>
+                                                    {v.usageLimit}
+                                                    {(v.usedCount ?? 0) >= v.usageLimit && <span className="ml-1 text-xs">(Hết)</span>}
+                                                </span>
+                                            ) : (
+                                                <span className="text-blue-600 font-bold">∞</span>
+                                            )}
                                         </td>
                                         <td className="py-4 px-4">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${v.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>

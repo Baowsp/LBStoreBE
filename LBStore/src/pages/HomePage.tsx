@@ -91,8 +91,20 @@ export const HomePage = () => {
   }
 
 
+  const slugToPosition: Record<string, string> = {
+    'dien-thoai': 'PHONE',
+    'laptop': 'LAPTOP',
+    'tai-nghe': 'HEADPHONE',
+    'loa': 'LOUDSPEAKER',
+    'camera': 'CAMERA',
+    'dong-ho-thong-minh': 'SMARTWATCH',
+    'phu-kien': 'ACCESSORY',
+    'pin': 'BATTERY'
+  };
+
   const getCategoryBanners = (slug: string, fallbackUrl: string) => {
-    const catBanners = banners.filter(b => b.position === 'CATEGORY_HEADER' && b.active && b.categorySlug === slug);
+    const pos = slugToPosition[slug] || 'CATEGORY_HEADER';
+    const catBanners = banners.filter(b => b.position === pos && b.active);
     if (catBanners.length > 0) return catBanners.map(b => b.banner?.imageUrl);
     return [fallbackUrl];
   };
@@ -103,24 +115,24 @@ export const HomePage = () => {
         {/* SECTION 1: HERO */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-8">
           <div className="hidden lg:block lg:col-span-2"><Sidebar /></div>
-          <div className="lg:col-span-7 bg-white rounded-2xl shadow-sm overflow-hidden min-h-[300px]">
+          <div className="lg:col-span-7 bg-white rounded-2xl shadow-sm overflow-hidden h-[300px] lg:h-[360px]">
             {banners.filter(b => b.position === 'HOME_MAIN_SLIDER' && b.active).length > 0 ? (
               <Swiper modules={[Navigation, Pagination, Autoplay]} navigation pagination={{ clickable: true }} autoplay={{ delay: 4000 }} className="h-full">
                 {banners.filter(b => b.position === 'HOME_MAIN_SLIDER' && b.active).map(b => (
-                  <SwiperSlide key={b.id}>
-                    <AdBanner link={b.banner?.targetUrl || '#'} image={b.banner?.imageUrl} alt={b.banner?.title} className="h-[300px] lg:h-[360px]" />
+                  <SwiperSlide key={b.id} className="h-full">
+                    <AdBanner link={b.banner?.targetUrl || '#'} image={b.banner?.imageUrl} alt={b.banner?.title} className="w-full h-full" />
                   </SwiperSlide>
                 ))}
               </Swiper>
-            ) : <div className="flex h-full items-center justify-center text-gray-300 font-bold uppercase italic">LB Store</div>}
+            ) : <div className="flex h-full items-center justify-center text-gray-300 font-bold uppercase italic bg-gray-100">LB Store</div>}
           </div>
-          <div className="hidden lg:flex lg:col-span-3 flex-col gap-4">
+          <div className="hidden lg:flex lg:col-span-3 flex-col gap-4 h-[300px] lg:h-[360px]">
             {banners.filter(b => b.position === 'HOME_SUB_BANNER' && b.active).slice(0, 3).map(sb => (
-              <AdBanner key={sb.id} link={sb.banner?.targetUrl || '#'} image={sb.banner?.imageUrl} alt={sb.banner?.title} className="flex-1" />
+              <AdBanner key={sb.id} link={sb.banner?.targetUrl || '#'} image={sb.banner?.imageUrl} alt={sb.banner?.title} className="flex-1 w-full" />
             ))}
             {/* Nếu không đủ 3 sub banner, fill bằng Mock data cho khỏi trống */}
             {banners.filter(b => b.position === 'HOME_SUB_BANNER' && b.active).length === 0 && MOCK_SUB_BANNERS.map(sb => (
-              <AdBanner key={sb.id} link={sb.link} image={sb.image} alt={sb.alt} className="flex-1" />
+              <AdBanner key={sb.id} link={sb.link} image={sb.image} alt={sb.alt} className="flex-1 w-full" />
             ))}
           </div>
         </div>

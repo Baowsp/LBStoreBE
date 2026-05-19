@@ -103,7 +103,15 @@ export const AdminBannerAdd = () => {
                 >
                   <option value="HOME_MAIN_SLIDER">Slider chính (Trang chủ)</option>
                   <option value="HOME_SUB_BANNER">Banner phụ (Bên phải Slider)</option>
-                  <option value="CATEGORY_HEADER">Banner danh mục (Category)</option>
+                  <option value="PHONE">Danh mục: Điện thoại (Phone)</option>
+                  <option value="LAPTOP">Danh mục: Laptop</option>
+                  <option value="HEADPHONE">Danh mục: Tai nghe (HeadPhone)</option>
+                  <option value="LOUDSPEAKER">Danh mục: Loa (LoudSpeaker)</option>
+                  <option value="CAMERA">Danh mục: Camera</option>
+                  <option value="SMARTWATCH">Danh mục: Đồng hồ (Smartwatch)</option>
+                  <option value="BATTERY">Danh mục: Pin (Battery)</option>
+                  <option value="ACCESSORY">Danh mục: Phụ kiện (Accessory)</option>
+                  <option value="CATEGORY_HEADER">Banner danh mục chung (Category)</option>
                   <option value="POPUP_PROMO">Popup khuyến mãi</option>
                   <option value="CHECKOUT_PAGE">Banner trang thanh toán</option>
                 </select>

@@ -80,10 +80,15 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 // ── PRODUCTS ─────────────────────────────────────────────────────────────────
 
-export const adminFetchProducts = (page = 0, size = 10) =>
-  fetchWithAuth(`${BASE}/products?page=${page}&size=${size}`)
+export const adminFetchProducts = (page = 0, size = 10, search = '') => {
+  const sort = 'id,desc';
+  const url = search 
+    ? `${BASE}/products/search?q=${encodeURIComponent(search)}&page=${page}&size=${size}&sort=${sort}`
+    : `${BASE}/products?page=${page}&size=${size}&sort=${sort}`;
+  return fetchWithAuth(url)
     .then(r => handleResponse<any>(r))
     .then(d => ({ content: d.content ?? [], totalElements: d.totalElements ?? 0, totalPages: d.totalPages ?? 1 }));
+};
 
 export const adminFetchProduct = (id: number) =>
   fetchWithAuth(`${BASE}/products/${id}`).then(r => handleResponse<any>(r));
@@ -223,6 +228,15 @@ export const adminUploadFile = async (file: File): Promise<{ url: string }> => {
     body: formData,
   });
 
-  if (!res.ok) throw new Error('Upload failed');
+  if (!res.ok) {
+    let errorText = 'Upload failed';
+    try {
+      const errRes = await res.json();
+      errorText = errRes.message || errRes.error || JSON.stringify(errRes);
+    } catch (e) {
+      errorText = await res.text();
+    }
+    throw new Error(`Server (500): ${errorText}`);
+  }
   return res.json();
 };

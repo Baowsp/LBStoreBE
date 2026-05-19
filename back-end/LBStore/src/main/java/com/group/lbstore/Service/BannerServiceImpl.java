@@ -1,4 +1,4 @@
-package com.group.lbstore.Service.Impl;
+package com.group.lbstore.Service;
 
 import com.group.lbstore.Model.Banner;
 import com.group.lbstore.Model.BannerPosition;
@@ -48,14 +48,18 @@ public class BannerServiceImpl implements BannerService {
     @Override
     public Optional<Banner> updateBanner(Long id, Banner bannerDetails) {
         return bannerRepository.findById(id).map(banner -> {
-            if (bannerDetails.getTitle() != null) banner.setTitle(bannerDetails.getTitle());
-            if (bannerDetails.getTargetUrl() != null) banner.setTargetUrl(bannerDetails.getTargetUrl());
-            if (bannerDetails.getPosition() != null) banner.setPosition(bannerDetails.getPosition());
-            if (bannerDetails.getCategorySlug() != null) banner.setCategorySlug(bannerDetails.getCategorySlug());
-            
+            if (bannerDetails.getTitle() != null)
+                banner.setTitle(bannerDetails.getTitle());
+            if (bannerDetails.getTargetUrl() != null)
+                banner.setTargetUrl(bannerDetails.getTargetUrl());
+            if (bannerDetails.getPosition() != null)
+                banner.setPosition(bannerDetails.getPosition());
+            if (bannerDetails.getCategorySlug() != null)
+                banner.setCategorySlug(bannerDetails.getCategorySlug());
+
             // Note: Since active is a primitive boolean, we just copy it
             banner.setActive(bannerDetails.isActive());
-            
+
             if (bannerDetails.getImageFile() != null && !bannerDetails.getImageFile().isEmpty()) {
                 String fileUrl = fileStorageService.storeFile(bannerDetails.getImageFile());
                 banner.setImageUrl("http://localhost:8080" + fileUrl);

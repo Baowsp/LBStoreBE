@@ -29,6 +29,7 @@ public class Product {
     private String specs;
 
     @Column(name = "image_url", columnDefinition = "TEXT")
+    @com.fasterxml.jackson.annotation.JsonProperty("imageURL")
     private String imageURL;
 
     @ManyToOne(fetch = FetchType.LAZY)

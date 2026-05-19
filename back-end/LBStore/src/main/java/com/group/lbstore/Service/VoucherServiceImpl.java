@@ -54,6 +54,7 @@ public class VoucherServiceImpl implements VoucherService {
 
         voucher.setDiscountPercentage(voucherDetails.getDiscountPercentage());
         voucher.setMaxDiscountAmount(voucherDetails.getMaxDiscountAmount());
+        voucher.setFixedDiscountAmount(voucherDetails.getFixedDiscountAmount());
         voucher.setMinOrderValue(voucherDetails.getMinOrderValue());
         voucher.setStartDate(voucherDetails.getStartDate());
         voucher.setEndDate(voucherDetails.getEndDate());

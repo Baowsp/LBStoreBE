@@ -45,6 +45,9 @@ public class DisplayBanner {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        if (this.displayOrder == null) {
+            this.displayOrder = 0;
+        }
     }
 
     @PreUpdate

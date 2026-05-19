@@ -12,12 +12,13 @@ export const AdminProducts = () => {
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeSearchTerm, setActiveSearchTerm] = useState('');
   const [error, setError] = useState('');
 
-  const loadProducts = useCallback((page: number, size: number) => {
+  const loadProducts = useCallback((page: number, size: number, search: string) => {
     setLoading(true);
     setError('');
-    adminFetchProducts(page, size)
+    adminFetchProducts(page, size, search)
       .then(({ content, totalElements, totalPages }) => {
         setProducts(content);
         setTotalElements(totalElements);
@@ -27,25 +28,23 @@ export const AdminProducts = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { loadProducts(0, pageSize); }, [loadProducts, pageSize]);
+  useEffect(() => { loadProducts(0, pageSize, activeSearchTerm); }, [loadProducts, pageSize, activeSearchTerm]);
 
   const handleDelete = async (id: number, name: string) => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${name}"?`)) return;
     try {
       await adminDeleteProduct(id);
-      loadProducts(currentPage, pageSize);
+      loadProducts(currentPage, pageSize, activeSearchTerm);
     } catch (e: any) {
       alert('Xóa thất bại: ' + e.message);
     }
   };
 
-  const displayedProducts = searchTerm
-    ? products.filter(p => p.name?.toLowerCase().includes(searchTerm.toLowerCase()))
-    : products;
+  const displayedProducts = products;
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    loadProducts(page, pageSize);
+    loadProducts(page, pageSize, activeSearchTerm);
   };
 
   return (
@@ -59,7 +58,12 @@ export const AdminProducts = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => loadProducts(currentPage, pageSize)} className="p-2.5 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all" title="Làm mới">
+          <button onClick={() => {
+            setSearchTerm('');
+            setActiveSearchTerm('');
+            setCurrentPage(0);
+            loadProducts(0, pageSize, '');
+          }} className="p-2.5 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all" title="Làm mới">
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
           </button>
           <button
@@ -79,15 +83,32 @@ export const AdminProducts = () => {
 
       {/* Toolbar */}
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            placeholder="Lọc trong trang hiện tại..."
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-red-500 text-sm font-medium"
-          />
+        <div className="relative w-full md:w-96 flex">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  setCurrentPage(0);
+                  setActiveSearchTerm(searchTerm);
+                }
+              }}
+              placeholder="Tìm kiếm sản phẩm trên máy chủ..."
+              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-l-xl outline-none focus:ring-2 focus:ring-red-500 text-sm font-medium"
+            />
+          </div>
+          <button 
+            onClick={() => {
+              setCurrentPage(0);
+              setActiveSearchTerm(searchTerm);
+            }}
+            className="bg-gray-100 border border-gray-100 border-l-0 px-4 rounded-r-xl hover:bg-gray-200 transition-colors font-bold text-gray-600"
+          >
+            Tìm
+          </button>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-500">Hiển thị:</span>
@@ -176,11 +197,11 @@ export const AdminProducts = () => {
 
         {/* Pagination Controls */}
         {!loading && totalPages > 1 && (
-          <div className="p-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+          <div className="p-4 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 bg-gray-50/50">
             <span className="text-sm text-gray-500 font-medium">
               Trang {currentPage + 1} / {totalPages} &nbsp;·&nbsp; Tổng {totalElements} sản phẩm
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2">
               <button
                 disabled={currentPage === 0}
                 onClick={() => goToPage(currentPage - 1)}
@@ -204,6 +225,34 @@ export const AdminProducts = () => {
               >
                 <ChevronRight size={18} />
               </button>
+
+              <div className="flex items-center gap-2 ml-0 md:ml-4 pl-0 md:pl-4 md:border-l border-gray-200">
+                <span className="text-sm text-gray-500 font-medium">Đến trang:</span>
+                <input 
+                  key={currentPage}
+                  type="number" 
+                  min={1} 
+                  max={totalPages} 
+                  defaultValue={currentPage + 1}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const val = parseInt(e.currentTarget.value);
+                      if (!isNaN(val) && val >= 1 && val <= totalPages) {
+                        goToPage(val - 1);
+                      }
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (!isNaN(val) && val >= 1 && val <= totalPages && val - 1 !== currentPage) {
+                      goToPage(val - 1);
+                    } else {
+                      e.target.value = String(currentPage + 1);
+                    }
+                  }}
+                  className="w-16 h-9 text-center text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-lg outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all"
+                />
+              </div>
             </div>
           </div>
         )}

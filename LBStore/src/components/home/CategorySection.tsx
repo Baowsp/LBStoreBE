@@ -40,14 +40,16 @@ export const CategorySection = ({ title, icon: Icon, products, banners, slug, ro
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                 {banners && banners.length > 0 ? (
                     <>
-                        <div className="hidden lg:block lg:col-span-3 rounded-2xl overflow-hidden shadow-sm h-full">
-                            <Swiper modules={[Autoplay, Pagination]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} autoplay={{ delay: 3500 }} className="h-full">
-                                {banners.map((img: string, idx: number) => (
-                                    <SwiperSlide key={idx}>
-                                        <img src={img} alt={title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-                                    </SwiperSlide>
-                                ))}
-                            </Swiper>
+                        <div className="hidden lg:block lg:col-span-3 rounded-2xl overflow-hidden shadow-sm relative min-h-[300px]">
+                            <div className="absolute inset-0">
+                                <Swiper modules={[Autoplay, Pagination]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} autoplay={{ delay: 3500 }} className="h-full w-full">
+                                    {banners.map((img: string, idx: number) => (
+                                        <SwiperSlide key={idx} className="h-full w-full">
+                                            <img src={img} alt={title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                                        </SwiperSlide>
+                                    ))}
+                                </Swiper>
+                            </div>
                         </div>
                         <div className="lg:col-span-9">
                             <div className={`grid ${gridClass} gap-4`}>

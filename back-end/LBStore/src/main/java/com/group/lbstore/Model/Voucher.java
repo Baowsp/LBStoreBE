@@ -32,6 +32,8 @@ public class Voucher {
     @Column(name = "max_discount_amount", precision = 15, scale = 2)
     private BigDecimal maxDiscountAmount;
 
+    @Column(name = "fixed_discount_amount", precision = 15, scale = 2)
+    private BigDecimal fixedDiscountAmount;
     // Đơn hàng tối thiểu bao nhiêu tiền thì áp dụng được
     @Column(name = "min_order_value", precision = 15, scale = 2)
     private BigDecimal minOrderValue;

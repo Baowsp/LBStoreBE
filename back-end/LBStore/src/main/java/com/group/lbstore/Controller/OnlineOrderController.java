@@ -115,13 +115,19 @@ public class OnlineOrderController {
                 voucherCode = (String) body.get("voucherCode");
                 if (voucherCode != null && !voucherCode.trim().isEmpty()) {
                     Voucher voucher = voucherService.validateAndApplyVoucher(voucherCode, totalAmount);
-                    // Giảm theo %
-                    BigDecimal discountPercentage = voucher.getDiscountPercentage();
-                    discountAmount = totalAmount.multiply(discountPercentage).divide(new BigDecimal("100"));
                     
-                    // Giới hạn max
-                    if (voucher.getMaxDiscountAmount() != null && discountAmount.compareTo(voucher.getMaxDiscountAmount()) > 0) {
-                        discountAmount = voucher.getMaxDiscountAmount();
+                    if (voucher.getFixedDiscountAmount() != null && voucher.getFixedDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
+                        // Giảm cứng
+                        discountAmount = voucher.getFixedDiscountAmount();
+                    } else if (voucher.getDiscountPercentage() != null) {
+                        // Giảm theo %
+                        BigDecimal discountPercentage = voucher.getDiscountPercentage();
+                        discountAmount = totalAmount.multiply(discountPercentage).divide(new BigDecimal("100"));
+                        
+                        // Giới hạn max
+                        if (voucher.getMaxDiscountAmount() != null && discountAmount.compareTo(voucher.getMaxDiscountAmount()) > 0) {
+                            discountAmount = voucher.getMaxDiscountAmount();
+                        }
                     }
                     
                     order.setVoucherCode(voucher.getCode());

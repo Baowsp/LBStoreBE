@@ -79,9 +79,14 @@ export const CheckoutPage = () => {
         const voucher = await applyVoucher(voucherCode, subtotal);
         setAppliedVoucher(voucher);
         
-        let calculatedDiscount = (subtotal * voucher.discountPercentage) / 100;
-        if (voucher.maxDiscountAmount && calculatedDiscount > voucher.maxDiscountAmount) {
-            calculatedDiscount = voucher.maxDiscountAmount;
+        let calculatedDiscount = 0;
+        if (voucher.fixedDiscountAmount && Number(voucher.fixedDiscountAmount) > 0) {
+            calculatedDiscount = Number(voucher.fixedDiscountAmount);
+        } else {
+            calculatedDiscount = (subtotal * (voucher.discountPercentage || 0)) / 100;
+            if (voucher.maxDiscountAmount && calculatedDiscount > voucher.maxDiscountAmount) {
+                calculatedDiscount = voucher.maxDiscountAmount;
+            }
         }
         setDiscountAmount(calculatedDiscount);
         alert(`Áp dụng voucher thành công! Giảm ${calculatedDiscount.toLocaleString()}đ`);

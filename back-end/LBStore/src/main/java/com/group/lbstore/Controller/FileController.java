@@ -12,7 +12,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/files")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Cho phép upload từ các nguồn khác nhau (như React)
 public class FileController {
 
     private final FileStorageService fileStorageService;
@@ -22,13 +21,14 @@ public class FileController {
         try {
             // Sử dụng FileStorageService có sẵn để lưu file
             String fileUrl = fileStorageService.storeFile(file);
-            
+            System.out.println("File URL: " + fileUrl);
             // Trả về URL của file để Frontend lưu vào Database
             Map<String, String> response = new HashMap<>();
             response.put("url", fileUrl);
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).body("Could not upload the file: " + e.getMessage());
         }
     }

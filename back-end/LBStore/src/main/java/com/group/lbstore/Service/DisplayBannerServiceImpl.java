@@ -23,6 +23,9 @@ public class DisplayBannerServiceImpl implements DisplayBannerService {
         Banner banner = bannerRepository.findById(bannerId)
                 .orElseThrow(() -> new RuntimeException("Banner not found with id: " + bannerId));
         displayBannerDetails.setBanner(banner);
+        if (displayBannerDetails.getDisplayOrder() == null) {
+            displayBannerDetails.setDisplayOrder(0);
+        }
         return displayBannerRepository.save(displayBannerDetails);
     }
 

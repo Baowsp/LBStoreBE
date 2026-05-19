@@ -22,14 +22,14 @@ export const AdminDisplayBanners = () => {
   });
 
   const categories = [
-    { slug: 'dien-thoai', name: 'Điện thoại' },
-    { slug: 'laptop', name: 'Laptop' },
-    { slug: 'tai-nghe', name: 'Tai nghe' },
-    { slug: 'loa', name: 'Loa âm thanh' },
-    { slug: 'camera', name: 'Camera' },
-    { slug: 'dong-ho-thong-minh', name: 'Đồng hồ thông minh' },
-    { slug: 'phu-kien', name: 'Phụ kiện' },
-    { slug: 'pin', name: 'Pin & Linh kiện' }
+    { slug: 'dien-thoai', name: 'Điện thoại', position: 'PHONE' },
+    { slug: 'laptop', name: 'Laptop', position: 'LAPTOP' },
+    { slug: 'tai-nghe', name: 'Tai nghe', position: 'HEADPHONE' },
+    { slug: 'loa', name: 'Loa âm thanh', position: 'LOUDSPEAKER' },
+    { slug: 'camera', name: 'Camera', position: 'CAMERA' },
+    { slug: 'dong-ho-thong-minh', name: 'Đồng hồ thông minh', position: 'SMARTWATCH' },
+    { slug: 'phu-kien', name: 'Phụ kiện', position: 'ACCESSORY' },
+    { slug: 'pin', name: 'Pin & Linh kiện', position: 'BATTERY' }
   ];
 
   const loadData = async () => {
@@ -99,7 +99,8 @@ export const AdminDisplayBanners = () => {
       const payload = {
         position: formData.position,
         categorySlug: formData.categorySlug,
-        active: formData.active
+        active: formData.active,
+        displayOrder: 0
       };
 
       if (modalMode === 'add') {
@@ -189,7 +190,7 @@ export const AdminDisplayBanners = () => {
             <h3 className="font-bold text-gray-800 uppercase mb-4">Banner Các Danh Mục (Category Header)</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {categories.map(cat => {
-                const b = categoryBanners.find(cb => cb.categorySlug === cat.slug);
+                const b = displayBanners.find(cb => cb.position === cat.position);
                 return (
                   <div key={cat.slug} className="flex flex-col gap-2">
                     <div className="text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-lg inline-block text-center">{cat.name}</div>
@@ -203,7 +204,7 @@ export const AdminDisplayBanners = () => {
                         {!b.active && <div className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">Đã ẩn</div>}
                       </div>
                     ) : (
-                      <div onClick={() => openAddModal('CATEGORY_HEADER', cat.slug)} className="border-2 border-dashed border-gray-300 rounded-xl h-32 flex flex-col gap-2 items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-blue-500 hover:border-blue-500 cursor-pointer transition-all">
+                      <div onClick={() => openAddModal(cat.position, cat.slug)} className="border-2 border-dashed border-gray-300 rounded-xl h-32 flex flex-col gap-2 items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-blue-500 hover:border-blue-500 cursor-pointer transition-all">
                         <ImageIcon size={24} />
                         <span className="text-xs font-bold">Thêm banner</span>
                       </div>

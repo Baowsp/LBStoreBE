@@ -272,16 +272,24 @@ export const fetchProducts = async (page = 0, size = 10): Promise<PagedResponse<
     }
 };
 
-export const fetchBanners = async (): Promise<any[]> => {
+export const fetchBanners = async (page?: number, size?: number): Promise<any> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/v1/banners`);
+        const p = page !== undefined ? page : 0;
+        const s = size !== undefined ? size : 9999;
+        const response = await fetch(`${API_BASE_URL}/v1/banners?page=${p}&size=${s}`);
         if (!response.ok) {
             throw new Error(`Failed to fetch banners: ${response.status}`);
         }
         const data = await response.json();
+        if (page !== undefined && size !== undefined) {
+            return data;
+        }
         return data.content || [];
     } catch (error) {
         console.error("Error fetching banners:", error);
+        if (page !== undefined && size !== undefined) {
+            return { content: [], totalPages: 0, totalElements: 0, size: size, number: page };
+        }
         return [];
     }
 };
