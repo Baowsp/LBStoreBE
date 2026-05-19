@@ -18,6 +18,7 @@ public class DisplayBanner {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "banner_id", nullable = false)
+    @org.hibernate.annotations.NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
     private Banner banner;
 
     @Enumerated(EnumType.STRING)

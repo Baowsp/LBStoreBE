@@ -32,12 +32,14 @@ public class Product {
     @com.fasterxml.jackson.annotation.JsonProperty("imageURL")
     private String imageURL;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "brand_id", nullable = false)
+    @org.hibernate.annotations.NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
     private Brand brand;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
+    @org.hibernate.annotations.NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
