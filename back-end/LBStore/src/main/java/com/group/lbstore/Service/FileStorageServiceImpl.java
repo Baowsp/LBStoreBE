@@ -1,6 +1,7 @@
 package com.group.lbstore.Service;
 
 import com.group.lbstore.Service.FileStorageService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,9 @@ import java.util.UUID;
 public class FileStorageServiceImpl implements FileStorageService {
 
     private final Path fileStorageLocation;
+
+    @Value("${app.base-url:http://localhost:8080}")
+    private String appBaseUrl;
 
     public FileStorageServiceImpl() {
         // Lưu file vào thư mục "uploads" trong thư mục gốc của dự án
@@ -37,7 +41,9 @@ public class FileStorageServiceImpl implements FileStorageService {
             String newFileName = UUID.randomUUID().toString() + "_" + fileName;
             Path targetLocation = this.fileStorageLocation.resolve(newFileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            return "/uploads/" + newFileName; // Trả về đường dẫn tương đối
+            // Trả về full URL để frontend có thể hiển thị trực tiếp
+            String baseUrl = appBaseUrl.endsWith("/") ? appBaseUrl.substring(0, appBaseUrl.length() - 1) : appBaseUrl;
+            return baseUrl + "/uploads/" + newFileName;
         } catch (IOException ex) {
             throw new RuntimeException("Could not store file " + fileName + ". Please try again!", ex);
         }
