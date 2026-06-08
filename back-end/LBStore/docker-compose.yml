@@ -21,7 +21,7 @@ services:
     depends_on:
       - mysqldb
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/my_web_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/my_web_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootpassword
       # ⚠️ Thay YOUR_SERVER_IP bằng IP hoặc domain thực tế của VPS (vd: http://123.45.67.89:8080 hoặc https://api.yourdomain.com)
