@@ -1,5 +1,6 @@
 package com.group.lbstore.Controller;
 
+import com.group.lbstore.DTO.DeliveryEmployeeRequest;
 import com.group.lbstore.Model.DeliveryEmployee;
 import com.group.lbstore.Model.DeliveryStatus;
 import com.group.lbstore.Service.DeliveryEmployeeService;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/delivery-employees")
@@ -19,9 +21,23 @@ public class DeliveryEmployeeController {
 
     @PostMapping
     public ResponseEntity<DeliveryEmployee> createDeliveryEmployee(@RequestBody DeliveryEmployee deliveryEmployee) {
-        // Logic: Tạo hồ sơ Shipper mới, liên kết với Employee gốc
         DeliveryEmployee created = deliveryEmployeeService.create(deliveryEmployee);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    /**
+     * POST /api/v1/delivery-employees/create-with-info
+     * Tạo mới nhân viên giao hàng từ form nhập tay (không cần link Employee sẵn có).
+     * Backend tự động tạo User → Employee → DeliveryEmployee trong 1 transaction.
+     */
+    @PostMapping("/create-with-info")
+    public ResponseEntity<?> createWithInfo(@RequestBody DeliveryEmployeeRequest request) {
+        try {
+            DeliveryEmployee created = deliveryEmployeeService.createWithInfo(request);
+            return new ResponseEntity<>(created, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping
@@ -53,5 +69,19 @@ public class DeliveryEmployeeController {
         // Logic: Shipper bật/tắt trạng thái nhận đơn (ONLINE/OFFLINE)
         DeliveryEmployee updated = deliveryEmployeeService.updateStatus(id, status);
         return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DeliveryEmployee> updateDeliveryEmployee(
+            @PathVariable Long id,
+            @RequestBody DeliveryEmployee data) {
+        DeliveryEmployee updated = deliveryEmployeeService.update(id, data);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDeliveryEmployee(@PathVariable Long id) {
+        deliveryEmployeeService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

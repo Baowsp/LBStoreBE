@@ -58,6 +58,12 @@ public class Product {
     @Column(name = "stock_quantity", nullable = true)
     private Integer stockQuantity;
 
+    // Khuyến mãi áp dụng cho sản phẩm này (nullable — null = không có khuyến mãi)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("products")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "promotion_id", nullable = true)
+    private Promotion promotion;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -16,6 +16,8 @@ public interface OnlineOrderService {
     Optional<OnlineOrder> getOnlineOrderByOrderNumber(String orderNumber);
     List<OnlineOrder> getOrdersByCustomer(Long customerId);
     OnlineOrder updateOrderStatus(UUID id, OnlineOrderStatus status);
+    OnlineOrder customerConfirmDelivered(UUID id);
+    OnlineOrder assignShipper(UUID orderId, Long shipperId);
     Page<OnlineOrder> getAllOnlineOrders(Pageable pageable);
 
 }

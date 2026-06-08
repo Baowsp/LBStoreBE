@@ -28,12 +28,16 @@ public class SecurityConfig {
                 // Công khai endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/promotions/active").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/promotions/products").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/settings/display").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/banners/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/display-banners/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/comments/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/payment/webhook").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/ws/chat/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 
                 // Mọi request còn lại cần xác thực

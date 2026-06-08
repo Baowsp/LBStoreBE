@@ -23,7 +23,7 @@ public class BannerServiceImpl implements BannerService {
     public Banner createBanner(Banner banner) {
         if (banner.getImageFile() != null && !banner.getImageFile().isEmpty()) {
             String fileUrl = fileStorageService.storeFile(banner.getImageFile());
-            banner.setImageUrl("http://localhost:8080" + fileUrl);
+            banner.setImageUrl(fileUrl);
         }
         return bannerRepository.save(banner);
     }
@@ -62,7 +62,7 @@ public class BannerServiceImpl implements BannerService {
 
             if (bannerDetails.getImageFile() != null && !bannerDetails.getImageFile().isEmpty()) {
                 String fileUrl = fileStorageService.storeFile(bannerDetails.getImageFile());
-                banner.setImageUrl("http://localhost:8080" + fileUrl);
+                banner.setImageUrl(fileUrl);
             } else if (bannerDetails.getImageUrl() != null && !bannerDetails.getImageUrl().isEmpty()) {
                 banner.setImageUrl(bannerDetails.getImageUrl());
             }

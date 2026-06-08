@@ -62,7 +62,6 @@ public class OnlineOrder {
     // ======= DELIVERY EMPLOYEE =======
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_employee_id")
-    @JsonIgnore
     private DeliveryEmployee deliveryEmployee;
 
     // ======= AMOUNT =======

@@ -27,6 +27,8 @@ public class OnlineOrderController {
     private final AddressRepository addressRepository;
     private final ProductVariantColorRepository productVariantColorRepository;
     private final OnlineOrderDetailRepository onlineOrderDetailRepository;
+    private final ProductVariantRepository productVariantRepository;
+    private final ProductRepository productRepository;
     private final VoucherService voucherService;
 
     @GetMapping
@@ -192,6 +194,12 @@ public class OnlineOrderController {
                 BigDecimal unitPrice = new BigDecimal(d.getOrDefault("unitPrice", "0").toString());
                 BigDecimal subTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
 
+                // --- Kiểm tra số lượng tồn kho ---
+                if (variantColor.getStockQuantity() < quantity) {
+                    throw new RuntimeException("Sản phẩm \"" + variantColorId + "\" không đủ hàng trong kho. " +
+                            "Tồn kho hiện tại: " + variantColor.getStockQuantity() + ", yêu cầu: " + quantity);
+                }
+
                 // Create and SAVE detail explicitly
                 OnlineOrderDetail detail = new OnlineOrderDetail();
                 detail.setOnlineOrder(savedOrder); 
@@ -203,6 +211,32 @@ public class OnlineOrderController {
                 
                 OnlineOrderDetail savedDetail = onlineOrderDetailRepository.save(detail); // EXPLICIT SAVE
                 System.out.println("[DEBUG] Successfully saved detail ID: " + savedDetail.getId() + " for order " + savedOrder.getOrderNumber());
+
+                // --- Trừ số lượng tồn kho: ProductVariantColor ---
+                int newColorStock = variantColor.getStockQuantity() - quantity;
+                variantColor.setStockQuantity(newColorStock);
+                productVariantColorRepository.save(variantColor);
+                System.out.println("[DEBUG] Updated stock for ProductVariantColor ID " + variantColorId + ": " + (newColorStock + quantity) + " -> " + newColorStock);
+
+                // --- Cập nhật lại stockQuantity: ProductVariant = tổng tất cả color con ---
+                ProductVariant productVariant = variantColor.getProductVariant();
+                if (productVariant != null) {
+                    List<ProductVariantColor> allColors = productVariantColorRepository.findByProductVariantId(productVariant.getId());
+                    int totalVariantStock = allColors.stream().mapToInt(ProductVariantColor::getStockQuantity).sum();
+                    productVariant.setStockQuantity(totalVariantStock);
+                    productVariantRepository.save(productVariant);
+                    System.out.println("[DEBUG] Recalculated stock for ProductVariant ID " + productVariant.getId() + " = " + totalVariantStock);
+
+                    // --- Cập nhật lại stockQuantity: Product = tổng tất cả variant con ---
+                    Product product = productVariant.getProduct();
+                    if (product != null) {
+                        List<ProductVariant> allVariants = productVariantRepository.findByProductId(product.getId());
+                        int totalProductStock = allVariants.stream().mapToInt(ProductVariant::getStockQuantity).sum();
+                        product.setStockQuantity(totalProductStock);
+                        productRepository.save(product);
+                        System.out.println("[DEBUG] Recalculated stock for Product ID " + product.getId() + " = " + totalProductStock);
+                    }
+                }
                 
                 details.add(savedDetail);
             }
@@ -224,8 +258,43 @@ public class OnlineOrderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OnlineOrder> updateOrder(@PathVariable UUID id,
-                                                    @RequestBody OnlineOrderStatus onlineOrderStatus) {
-        return ResponseEntity.ok(onlineOrderService.updateOrderStatus(id, onlineOrderStatus));
+    public ResponseEntity<?> updateOrder(@PathVariable UUID id,
+                                         @RequestBody OnlineOrderStatus onlineOrderStatus) {
+        try {
+            return ResponseEntity.ok(onlineOrderService.updateOrderStatus(id, onlineOrderStatus));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * POST /api/online-orders/{id}/confirm-delivered
+     * Khách hàng xác nhận đã nhận được hàng (chỉ khi đơn đang ở trạng thái SHIPPING)
+     */
+    @PostMapping("/{id}/confirm-delivered")
+    public ResponseEntity<?> customerConfirmDelivered(@PathVariable UUID id) {
+        try {
+            OnlineOrder updated = onlineOrderService.customerConfirmDelivered(id);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * POST /api/online-orders/{id}/assign-shipper?shipperId={shipperId}
+     * Admin phân công nhân viên giao hàng cho đơn đang chờ xử lý.
+     * Đơn hàng chuyển sang SHIPPING, Shipper chuyển sang DELIVERING.
+     */
+    @PostMapping("/{id}/assign-shipper")
+    public ResponseEntity<?> assignShipper(
+            @PathVariable UUID id,
+            @RequestParam Long shipperId) {
+        try {
+            OnlineOrder updated = onlineOrderService.assignShipper(id, shipperId);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }
